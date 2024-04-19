@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import tarefaModel from './model/tarefaModel';
+import { rmSync } from 'fs';
 
 const app = express();
 
@@ -41,18 +42,14 @@ app.post('/criar-tarefa', (req: any, res: any) => {
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
+app.delete('/deletar-tarefa/:id', (req: any, res: any) => {
+    try {
+        const id = req.params.id;
+        tarefaModel.deleteOne(id)
+        res.status(200).json({ message: 'Tarefa deletada com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao deletar tarefa:', error);
+}})
 
 
 
