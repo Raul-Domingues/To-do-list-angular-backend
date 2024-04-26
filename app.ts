@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import tarefaModel from './model/tarefaModel';
-import { rmSync } from 'fs';
 
 const app = express();
 
@@ -28,13 +27,14 @@ app.get('/listar-tarefas', async (req: any, res: any) => {
         res.status(200).json(tarefas);
     } catch (error) {
         console.error('Erro ao listar tarefas:', error);
-}});
+    }
+});
 
-app.post('/criar-tarefa', (req: any, res: any) => {
+app.post('/criar-tarefa', async (req: any, res: any) => {
     try {
         const tarefa = req.body;
         const novaTarefa = new tarefaModel(tarefa);
-        novaTarefa.save();
+        await novaTarefa.save();
       res.status(200).json({ message: 'Tarefa criada com sucesso!' });
     } catch (error) {
       console.error('Erro ao criar tarefa:', error);
@@ -42,36 +42,25 @@ app.post('/criar-tarefa', (req: any, res: any) => {
     }
 });
 
-app.delete('/deletar-tarefa/:id', (req: any, res: any) => {
+app.delete('/deletar-tarefa/:_id', async (req: any, res: any) => {
     try {
-        const id = req.params.id;
-        tarefaModel.deleteOne(id)
+        const id = req.params._id;
+        const { concluido } = req.body;
+        await tarefaModel.findByIdAndDelete(id, { concluido })
         res.status(200).json({ message: 'Tarefa deletada com sucesso!' });
     } catch (error) {
         console.error('Erro ao deletar tarefa:', error);
 }})
 
+app.patch('/editar-tarefa/:_id', async (req: any, res: any) => {
+    try {
+        const id = req.params._id;
+        const tarefa = await tarefaModel.findById(id);
+        const statusTarefa = !tarefa?.concluido
 
-
-
-
-
-
-
-// app.put('concluir-tarefa/:id', (req: any, res: any) => {
-//     const id = req.params.id;
-//     tarefaModel.findByIdAndUpdate(id, { concluido: true }).then(() => {
-//         res.send('Tarefa concluída com sucesso!');
-//     }).catch((err: any) => {
-//         res.send('Erro ao concluir a tarefa', err);
-//     })
-// });
-
-// app.delete('remover-tarefa/:id', (req: any, res: any) => {
-//     const id = req.params.id;
-//     tarefaModel.findByIdAndDelete(id).then(() => {
-//         res.send('Tarefa removida com sucesso!');
-//     }).catch((err: any) => {
-//         res.send('Erro ao remover a tarefa', err);
-//     })
-// });
+        await tarefaModel.findByIdAndUpdate(id,{ concluido: statusTarefa });
+        res.status(200).json({ message: 'Tarefa atualizada com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao atualizar tarefa:', error);
+    }
+})
