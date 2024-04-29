@@ -2,13 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import tarefaModel from './model/tarefaModel';
+import 'dotenv/config'
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb+srv://raulhdomingues:QS93TQxTtx5gujMw@todo-pdi.vdhx2hz.mongodb.net/?retryWrites=true&w=majority&appName=ToDo-PDI').then(() => {
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@todo-pdi.vdhx2hz.mongodb.net/?retryWrites=true&w=majority&appName=ToDo-PDI`).then(() => {
     console.log('Connected to the database');
 }).catch((err: any) => {
     console.log('Error connecting to the database', err);
@@ -17,7 +18,6 @@ mongoose.connect('mongodb+srv://raulhdomingues:QS93TQxTtx5gujMw@todo-pdi.vdhx2hz
 app.listen('3030', () => {
     console.log('Server is running on port 3030');
 });
-
 
 //--------------------------ROTAS----------------------------------//
 
